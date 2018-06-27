@@ -1,378 +1,231 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title></title>
+  <title> Selamat</title>
 </head>
 <body>
-	<style type="text/css">
-		body {
-        
-        margin: 0px;
-        overflow: hidden;
-}
-
-#wrap {
-    position:relative;
-}
-
-#main {
-    position:absolute;
-	background:url("http://jsrun.it/assets/l/Z/L/a/lZLa2.png") no-repeat;
-    background-size:cover;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-}
-
-h1 {
-    font-family: 'Fredoka One', serif;
-    color:#ffff66;
-    text-shadow:0px 0px 7px #000;
-    font-size:450%;
-    text-align:center;
-    margin-top:10%;
-}
-p{
-    font-family:serif;
-    color:#ffffff;
-    font-size:140%;
-    text-align:center;
-}
-
-#s {
-    background-color: #000000;
-}
-	</style>
-<link href='https://fonts.googleapis.com/css?family=Fredoka+One' rel='stylesheet' type='text/css'>
-<div id="wrap">
-<div id="main">
-    <h1>COMING SOON <br> 404 <br>Page Not Found !!!</h1>
-    </div>
-<canvas id='s'>This application requires a (fast) HTML5 compliant browser.</canvas>
+<div class="page-container">
+  <div class="canvas-container">
+    <canvas id="static-canvas"></canvas>
+    <canvas id="foreground4"></canvas>
+    <canvas id="foreground3"></canvas>
+    <canvas id="foreground2"></canvas>
+    <canvas id="foreground1"></canvas>
+  </div>
 </div>
+<style type="text/css">
+  * {
+  box-sizing: border-box;
+  position: relative;
+}
+body {
+  font-size: 14pt;
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", "Calibri", "Lucida Grande", "Helvetica", "Arial", sans-serif;
+  overflow: hidden;
+}
+.page-container,
+.canvas-container {
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+canvas {
+  margin: 0 auto;
+  background-color: transparent;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#foreground4 {
+  animation: scroll 15s linear infinite;
+}
+
+#foreground3 {
+  animation: scroll 7s linear infinite;
+}
+
+#foreground2 {
+  animation: scroll 4s linear infinite;
+}
+
+#foreground1 {
+  animation: scroll 1s linear infinite;
+}
+
+@keyframes scroll {
+  from { left: 0%; }
+  to { left: -100%; }
+}
+</style>
 <script type="text/javascript">
-	// forked from hyperandroid's "Grass animation." https://jsdo.it/hyperandroid/grass
-/**
- * Original version http://labs.hyperandroid.com/js1k
- */
-(function() {
-  Grass = function() {
-    return this;
-  };
+  let staticCanvas = document.getElementById('static-canvas'),
+    fg1 = document.getElementById('foreground1'),
+    fg2 = document.getElementById('foreground2'),
+    fg3 = document.getElementById('foreground3'),
+    fg4 = document.getElementById('foreground4');
+
+let ctx_static = staticCanvas.getContext('2d'),
+    ctx_fg1 = fg1.getContext('2d'),
+    ctx_fg2 = fg2.getContext('2d'),
+    ctx_fg3 = fg3.getContext('2d'),
+    ctx_fg4 = fg4.getContext('2d');
+
+let cSet = [
+  staticCanvas,
+  fg1,
+  fg2,
+  fg3,
+  fg4
+];
+
+let ctxSet = [
+    ctx_static, 
+    ctx_fg1,
+    ctx_fg2,
+    ctx_fg3,
+    ctx_fg4
+];
+
+window.addEventListener('load', function(){
+  init();
+})
+
+window.addEventListener('resize', function(){
+  init();
+})
+
+colors = {
+  sky:  '#010001',
+  moon: '#fef9bc',
+  clouds1: '#6897d5',
+  clouds2: '#5074a3',
+  clouds3: '#364d6d',
+  clouds4: '#1b2637',
+};
+
+function init()  {
+  /* initialize the static (background) canvas */
+  sizeCanvas(staticCanvas, window.innerWidth, window.innerHeight);
   
-  Grass.prototype= {
-      
-    
-    alto_hierba: 0,    // grass height
-    maxAngle:    0,    // maximum grass rotation angle (wind movement)
-    angle:       0,    // construction angle. thus, every grass is different to others  
-    coords:      null,  // quadric bezier curves coordinates
-    color:       null,  // grass color. modified by ambient component.
-    offset_control_point:   3,    // grass base width. greater values, wider at the basement.
-
-    initialize : function(canvasWidth, canvasHeight, minHeight, maxHeight, angleMax, initialMaxAngle)  {
-
-      // grass start position
-      var sx= Math.floor( Math.random()*canvasWidth );
-      var sy= canvasHeight;
-      
-      // quadric curve middle control point. higher values means wider grass from base to peak.
-      // try offset_control_x=10 for thicker grass.
-      var offset_control_x=1.5;  
-      
-      this.alto_hierba= minHeight+Math.random()*maxHeight;
-      this.maxAngle= 10+Math.random()*angleMax;
-      this.angle= Math.random()*initialMaxAngle*(Math.random()<0.5?1:-1)*Math.PI/180;
-
-      // hand crafted value. modify offset_control_x to play with grass curvature slope.
-      var csx= sx-offset_control_x ;
-
-      // grass curvature. greater values make grass bender. 
-      // try with:  
-      //        var csy= sy-this.alto_hierba;  -> much more bended grass.
-      //        var csy= sy-1;                 -> totally unbended grass.
-      //        var csy= sy-this.alto_hierba/2;-> original. good looking grass.
-      var csy= 0;
-      if ( Math.random()<0.1 ) {
-        csy= sy-this.alto_hierba;
-      } else {
-        csy= sy-this.alto_hierba/2;
-      }
-          
-      /**
-       I determined that both bezier curves that conform each grass should have
-       the same middle control point to be parallel.
-       You can play with psx/psy adding or removing values to slightly modify grass
-       geometry.
-      **/
-      var psx= csx;
-      // changed var psy= csy; to
-      var psy= csy-offset_control_x;
-          
-      // the bigger offset_control_point, the wider on its basement.
-      this.offset_control_point=3;
-      var dx= sx+this.offset_control_point;
-      var dy= sy;      
-      
-      this.coords= [sx,sy,csx,csy,psx,psy,dx,dy];
-          
-      // grass color.
-      this.color= [16+Math.floor(Math.random()*32),
-                   100+Math.floor(Math.random()*155),
-                   16+Math.floor(Math.random()*32) ];
-      
-    },
-    
-    /**
-     * paint every grass.
-     * @param ctx is the canvas2drendering context
-     * @param time for grass animation.
-     * @param ambient parameter to dim or brighten every grass.
-     * @returns nothing
-     */
-    paint : function(ctx,time,ambient) {
-
-          ctx.save();
-          
-          // grass peak position. how much to rotate the peak.
-          // less values (ie the .0005), will make as if there were a softer wind.
-          var inc_punta_hierba= Math.sin(time*0.0005);
-          
-          // rotate the point, so grass curves are modified accordingly. If just moved horizontally, the curbe would
-          // end by being unstable with undesired visuals. 
-          var ang= this.angle + Math.PI/2 + inc_punta_hierba * Math.PI/180*(this.maxAngle*Math.cos(time*0.0002));
-          var px= this.coords[0]+ this.offset_control_point + this.alto_hierba*Math.cos(ang);
-          var py= this.coords[1]                  - this.alto_hierba*Math.sin(ang);
-    
-          var c= this.coords;
-      
-          ctx.beginPath();
-          ctx.moveTo( c[0], c[1] );
-          ctx.bezierCurveTo(c[0], c[1], c[2], c[3], px, py);
-          ctx.bezierCurveTo(px, py, c[4], c[5], c[6], c[7]);
-          ctx.closePath();
-          ctx.fillStyle='rgb(0,0,0)';
-          ctx.fill();
-
-          ctx.restore();
-            
-    }  
-  };
-})();
-
-(function() {
-  Garden= function() {
-    return this;
-  };
+  for (var i = 1; i < cSet.length; i++) {
+    cSet[i].width = window.innerWidth * 2;
+    cSet[i].height = window.innerHeight;
+  }
   
-  Garden.prototype= {
-    grass:      null,
-    ambient:    1,
-    stars:      null,
-    firefly_radius:  10,
-    num_fireflyes:  40,
-    num_stars:    512,
-    width:      0,
-    height:      0,
-    
-    initialize : function(width, height, size)  {
-      this.width= width;
-      this.height= height;
-      this.grass= [];
-      
-      for(var i=0; i<size; i++ ) {
-        var g= new Grass();
-        g.initialize(
-            width,
-            height,
-            10,      // min grass height 
-            height*1/7, // max grass height
-            20,     // grass max initial random angle 
-            40      // max random angle for animation 
-            );
-        this.grass.push(g);
-      }
-      
-      this.stars= [];
-      for( i=0; i<this.num_stars; i++ )  {
-        this.stars.push( Math.floor( Math.random()*(width-10)+5  ) );
-        this.stars.push( Math.floor( Math.random()*(height-10)+5 ) );
-      }
-    },
-    
-    paint : function(ctx, time){
-      ctx.save();
-      
-      // draw stars if ambient below .3 -> night
-      if ( this.ambient<0.3 )  {
-        
-        // modify stars translucency by ambient (as transitioning to day, make them dissapear).
-        ctx.globalAlpha= 1-((this.ambient-0.05)/0.25);
+  renderScene();
+}
 
-        // as well as making them dimmer
-        intensity= 1 - (this.ambient/2-0.05)/0.25;
-        
-        // how white do you want the stars to be ??
-        var c= Math.floor( 192*intensity );
-        var strc= 'rgb('+c+','+c+','+c+')';
-        ctx.strokeStyle=strc;
-        
-        // first num_fireflyes coordinates are fireflyes themshelves.
-        for( var j=this.num_fireflyes*2; j<this.stars.length; j+=2 )  {
-          var inc=1;
-          
-          // every one out of 3 stars move at 1.5 increment
-          if ( j%3===0 ) {
-            inc=1.5;
-          } else if ( j%11===0 ) {
-          // every one out of 11 stars move at 2.5 increment
-            inc=2.5;
-          }
-          // all the others at increment 1
-          this.stars[j]= (this.stars[j]+0.1*inc)%canvas.width;
-          
-          var y= this.stars[j+1];
-          ctx.strokeRect(this.stars[j],this.stars[j+1],1,1);
+function sizeCanvas(c, x, y) {
+  c.width = x;
+  c.height = y;
+}
 
-        }
-      }
-      
-      ctx.globalAlpha= 1;
-      
-      var i;
-      // draw fireflyes
-        ctx.fillStyle= '#ffff00';      
-        for(i=0; i<this.num_fireflyes*5; i+=2) {
-          var angle= Math.PI*2*Math.sin(time*3E-4) + i*Math.PI/50;
-          var radius= this.firefly_radius*Math.cos(time*3E-4);
-          ctx.fillRect( 
-              this.width/2 + 
-              0.5*this.stars[i] + 
-              150*Math.cos(time*3E-4) * Math.sin(time*0.0000005*i) +  // move horizontally with time 
-              radius*Math.cos(angle),
-              
-              this.height/2+ 
-              0.5*this.stars[i+1] +  
-              20*Math.sin(time*3E-4) * 5* Math.cos(time*0.0000005*i)+  // move vertically with time 
-              radius*Math.sin(angle),
-              
-                3,
-                3 );
-        }            
-      
-      
-      for(i=0; i<this.grass.length; i++ ) {
-        this.grass[i].paint(ctx,time,this.ambient);
-      }
-      ctx.restore();
+function renderScene() {
+  /* render sky */
+  ctx_static.fillStyle = colors.sky;
+  ctx_static.fillRect(0, 0, innerWidth, innerHeight);
+  
+  /* render point stars */
+  for (var i = 0; i < 24; i++) {
+    let x = Math.round(Math.random() * innerWidth);
+    let y = Math.round(Math.random() * innerHeight * 0.4);
+    let d = distToPoint(x, y, staticCanvas.width * 0.65, staticCanvas.height * 0.15);
+    let col = d < 150 ? 96 : Math.random() < 0.1 ? 100 : 255;
+    ctx_static.fillStyle = 'rgb(' + col + ','  + col + ','  + col + ')';
+    ctx_static.fillRect(x, y, 1, 1);
+  }
+  
+  /* render bright stars */
+  let s1x = Math.round(staticCanvas.width * 0.4) - 0.5;
+  let s1y = Math.round(staticCanvas.height * 0.1) - 0.5;
+  let s1Grad = ctx_static.createRadialGradient(s1x, s1y, 0, s1x, s1y, 8);
+  s1Grad.addColorStop(0, 'rgba(255,255,255,1)');
+  s1Grad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx_static.strokeStyle = s1Grad;
+  ctx_static.beginPath();
+  ctx_static.moveTo(s1x - 4, s1y);
+  ctx_static.lineTo(s1x + 4, s1y);
+  ctx_static.stroke();
+  ctx_static.beginPath();
+  ctx_static.moveTo(s1x, s1y - 4);
+  ctx_static.lineTo(s1x, s1y + 4);
+  ctx_static.stroke();
+  
+  let s2x = Math.round(staticCanvas.width * 0.9) - 0.5;
+  let s2y = Math.round(staticCanvas.height * 0.16) - 0.5;
+  let s2Grad = ctx_static.createRadialGradient(s2x, s2y, 0, s2x, s2y, 8);
+  s2Grad.addColorStop(0, 'rgba(255,255,255,1)');
+  s2Grad.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx_static.strokeStyle = s2Grad;
+  ctx_static.beginPath();
+  ctx_static.moveTo(s2x - 4, s2y);
+  ctx_static.lineTo(s2x + 4, s2y);
+  ctx_static.stroke();
+  ctx_static.beginPath();
+  ctx_static.moveTo(s2x, s2y - 4);
+  ctx_static.lineTo(s2x, s2y + 4);
+  ctx_static.stroke();
+  
+  /* render moon */
+  ctx_static.fillStyle = colors.moon;
+  ctx_static.beginPath();
+  ctx_static.arc(staticCanvas.width * 0.65, staticCanvas.height * 0.15, 30, 0, Math.PI*2);
+  ctx_static.fill();
+  
+  /* render clouds */
+  renderCloudSet(innerHeight * 0.5, ctx_fg4, colors.clouds4, 10, 20, 100);
+  renderCloudSet(innerHeight * 0.65, ctx_fg3, colors.clouds3, 10, 20, 100);
+  renderCloudSet(innerHeight * 0.8, ctx_fg2, colors.clouds2, 10, 20, 100);
+  renderCloudSet(innerHeight * 0.95, ctx_fg1, colors.clouds1, 10, 20, 100);
+}
+
+function distToPoint(x1, y1, x2, y2) {
+  let a = (x2 - x1) * (x2 - x1);
+  let b = (y2 - y1) * (y2 - y1);
+  return Math.sqrt(a + b);
+}
+
+function renderCloudSet(cloudSurface, ctx, color, minM, maxM, yVariance) {
+  ctx.fillStyle = colors;
+  ctx.fillRect(0, cloudSurface, innerWidth, innerHeight - cloudSurface);
+  
+  let mX = 0;
+  let mY = cloudSurface - Math.round(Math.random() * yVariance);
+  let currentM = Math.round(Math.random() * maxM) + minM;
+  while (mX < innerWidth) {
+    createM(ctx, color, mX, mY, currentM, cloudSurface);
+    //mY = cloudSurface - Math.round(Math.random() * yVariance);
+    if (mY + currentM > cloudSurface) {
+      mY -= currentM;
+    } else if (mY - currentM < cloudSurface - yVariance) {
+      mY += currentM;
+    } else {
+      mY = Math.random() < 0.5 ? mY - currentM : mY + currentM;
     }
-  };
-})();
+    currentM = Math.round(Math.random() * maxM) + minM;
+    mX += currentM * 0.6;
+  }
+}
 
+function createM(ctx, color, x, y, r, cloudSurface) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.arc(x + innerWidth, y, r, 0, Math.PI * 2);
+  ctx.fill();
+  
+  ctx.fillRect(x - r, y, r * 2, window.innerHeight);
+  ctx.fillRect((x + innerWidth) - r, y, r * 2, window.innerHeight);
+}
 
-    function _doit()    {
-      
-      ctx.fillStyle= gradient;
-      ctx.fillRect(0,0,canvas.width,canvas.height);
-      var ntime= new Date().getTime();
-      var elapsed= ntime-time;
-      garden.paint( ctx, elapsed );
-      
-      // lerp.
-      if ( elapsed>nextLerpTime ) {
-        lerpindex= Math.floor((elapsed-nextLerpTime)/nextLerpTime);
-        if ( (elapsed-nextLerpTime)%nextLerpTime<lerpTime ) {
-          lerp( (elapsed-nextLerpTime)%nextLerpTime, lerpTime );
-        }
-      }
-      
-    }
-    
-    /**
-     * fade sky colors
-     * @param time current time
-     * @param last how much time to take fading colors
-     */
-    function lerp( time, last ) {
-      gradient= ctx.createLinearGradient(0,0,0,canvas.height);
-      
-      var i0= lerpindex%colors.length;
-      var i1= (lerpindex+1)%colors.length;
-      
-      for( var i=0; i<4; i++ )  {
-        var rgb='rgb(';
-        for( var j=0; j<3; j++ ) {
-          rgb+= Math.floor( (colors[i1][i*3+j]-colors[i0][i*3+j])*time/last + colors[i0][i*3+j]);
-          if ( j<2 ) rgb+=',';
-        }
-        rgb+=')';
-        gradient.addColorStop( i/3, rgb );
-      }
-      
-      garden.ambient= (ambients[i1]-ambients[i0])*time/last + ambients[i0];
-    }
-
-    
-var lerpTime= 10000;    // time taken to fade sky colors
-var nextLerpTime= 15000;  // after fading, how much time to wait to fade colors again.
-
-var interval= null;
-var canvas= null;
-var ctx= null;
-var garden= null;
-
-var gradient;
-var time;
-
-    function init(images) {
-      
-        canvas= document.getElementById('s');
-        ctx= canvas.getContext('2d');
-        canvas.width= window.innerWidth;
-        canvas.height=window.innerHeight;
-
-        garden= new Garden();
-        garden.initialize(canvas.width, canvas.height, 300);
-        
-        lerp(0,2000);
-        
-        time= new Date().getTime();
-        interval = setInterval(_doit, 30);
-    }
-
-    // sky colors
-    colors= [ [ 0x00, 0x00, 0x3f, 
-            0x00, 0x3f, 0x7f,
-            0x1f, 0x5f, 0xc0,
-            0x3f, 0xa0, 0xff ],
-
-          [ 0x00, 0x3f, 0x7f, 
-            0xa0, 0x5f, 0x7f,
-            0xff, 0x90, 0xe0,
-            0xff, 0x90, 0x00 ],
-            
-            
-          [ 0x00, 0x00, 0x00,
-            0x00, 0x2f, 0x7f,
-            0x00, 0x28, 0x50,
-            0x00, 0x1f, 0x3f ],
-            
-            [ 0x1f, 0x00, 0x5f,
-              0x3f, 0x2f, 0xa0,
-              0xa0, 0x1f, 0x1f,
-              0xff, 0x7f, 0x00 ] ];
-    
-    // ambient intensities for each sky color
-    ambients= [ 1, 0.35, 0.05, 0.5 ];
-    
-    // start with this sky index.
-    lerpindex= 0;
-    
-window.addEventListener(
-    'load',
-    init(null),
-    false);
+/*
+function animate() {
+  window.requestAnimationFrame(animate);
+}
+*/
 </script>
 </body>
-</html>>
+</html>

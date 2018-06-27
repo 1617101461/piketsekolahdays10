@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard</title>
+    <title>Member</title>
 
     <!-- Fontfaces CSS-->
     <link href="/assets/admin/css/font-face.css" rel="stylesheet" media="all">
@@ -38,10 +38,10 @@
 <body class="animsition">
     <div class="page-wrapper">
         <!-- HEADER MOBILE-->
-        @include('partials.nav-mobile')
+        @include('partialsmember.nav-mobile')
         <!-- END HEADER MOBILE-->
 
-        @include('partials.sidebar')
+        @include('partialsmember.sidebar')
         <!-- MENU SIDEBAR-->
         <!-- END MENU SIDEBAR-->
 
@@ -49,7 +49,7 @@
         <div class="page-container">
             <!-- HEADER DESKTOP-->
 
-        @include('partials.nav-dekstop')
+        @include('partialsmember.nav-dekstop')
             <!-- HEADER DESKTOP-->
 
             <!-- MAIN CONTENT-->

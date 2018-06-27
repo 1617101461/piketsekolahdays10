@@ -27,13 +27,6 @@ class AbsensiguruController extends Controller
     }
 
 
-     public function guru()
-    {
-        
-        $absensigurus = absensigurus::with('guru')->get();
-        return view('absensiguru.guru',compact('absensigurus'));
-    }
-
     /**
      * Show the form for creating a new resource.
      *

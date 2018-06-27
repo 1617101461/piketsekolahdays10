@@ -4,7 +4,7 @@
 		<div class="container">
 			<div class="col-md-12">
 				<div class="panel panel-primary">
-					<div class="panel-heading">Guru
+					<div class="panel-heading">Data Guru
 					<div class="panel-title pull-right">
 						<a href="{{route('guru.index')}}">Kembali</a>
 					</div>

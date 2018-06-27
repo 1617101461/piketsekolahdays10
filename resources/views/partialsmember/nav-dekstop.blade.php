@@ -101,23 +101,23 @@
                                 <div class="account-wrap">
                                     <div class="account-item clearfix js-item-menu">
                                         <div class="image">
-                                            <img src="/assets/admin/images/icon/Av.png" alt="Nurs" />
+                                            <img src="/assets/admin/images/icon/index.jpeg" alt="Nurs" />
                                         </div>
                                         <div class="content">
-                                            <a class="js-acc-btn" href="#">Admin</a>
+                                            <a class="js-acc-btn" href="#">Member</a>
                                         </div>
                                         <div class="account-dropdown js-dropdown">
                                             <div class="info clearfix">
                                                 <div class="image">
                                                     <a href="#">
-                                                        <img src="/assets/admin/images/icon/Av.png" alt="Admin" />
+                                                        <img src="/assets/admin/images/icon/index.jpeg" alt="Member" />
                                                     </a>
                                                 </div>
                                                 <div class="content">
                                                     <h5 class="name">
-                                                        <a href="#">Admin</a>
+                                                        <a href="#">Member</a>
                                                     </h5>
-                                                    <span class="email">admin@example.com</span>
+                                                    <span class="email">member@example.com</span>
                                                 </div>
                                             </div>
                                             <div class="account-dropdown__footer">

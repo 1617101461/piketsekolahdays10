@@ -27,8 +27,8 @@ class UsersSeeder extends Seeder
 
 
         $Admin = new User();
-        $Admin ->name = "admin";
-        $Admin ->email = "admin@gmail.com";
+        $Admin ->name = "Admin";
+        $Admin ->email = "Admin@gmail.com";
         $Admin ->password = bcrypt('rahasia');
         $Admin -> save();
         $Admin -> attachRole($adminRole);

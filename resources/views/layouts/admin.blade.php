@@ -10,7 +10,7 @@
     <meta name="keywords" content="au theme template">
 
     <!-- Title Page-->
-    <title>Dashboard</title>
+    <title>Admin</title>    
 
     <!-- Fontfaces CSS-->
     <link href="/assets/admin/css/font-face.css" rel="stylesheet" media="all">

@@ -20,6 +20,7 @@ Auth::routes();
 Route::get('/home', 'HomeController@index')->name('home');
 
 Route::group(['prefix'=>'admin','middleware'=>['auth','role:admin']],function(){
+Route::resource('/', 'AdminController@index');
 Route::resource('absensiguru', 'AbsensiguruController');
 Route::resource('absensisiswa', 'AbsensisiswaController');
 Route::resource('petugaspiket', 'PetugaspiketController');
@@ -34,9 +35,14 @@ Route::get('/home', 'HomeController@index')->name('home');
 Route::group(['prefix'=>'member','middleware'=>['auth','role:member']],function(){
 Route::get('absensiguru', 'AbsensiguruController@absensi');
 Route::get('absensisiswa', 'AbsensisiswaController@absensi');
-Route::get('absensipetugas', 'AbsensiguruController@petugas');
+Route::get('petugaspiket', 'PetugaspiketController@petugas');
 });
 
 Route::get('cek', function () {
     return view('layouts.admin');
+});
+
+
+Route::get('cok', function () {
+    return view('layouts.member');
 });
